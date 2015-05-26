@@ -3,10 +3,23 @@ var SideScroller = SideScroller || {};
 SideScroller.Game = function(){};
 
 SideScroller.Game.prototype = {
+  coinCount: 0,
   preload: function() {
       this.game.time.advancedTiming = true;
-    },
+  },
+  shutdown: function() {
+    if (this.backGroundMusic) {
+      this.backGroundMusic.stop();
+    }
+    
+    this.map.destroy();
+    this.backgroundlayer.destroy();
+    this.blockedLayer.destroy();
+  },
   create: function() {
+    this.backGroundMusic = this.game.add.audio('gameMusic');
+    this.backGroundMusic.play();
+    
     this.map = this.game.add.tilemap('level1');
 
     //the first parameter is the tileset name as specified in Tiled, the second is the key to the asset
@@ -46,11 +59,9 @@ SideScroller.Game.prototype = {
     //move player with cursor keys
     this.cursors = this.game.input.keyboard.createCursorKeys();
 
-    //init game controller
-    this.initGameController();
-
     //sounds
     this.coinSound = this.game.add.audio('coin');
+    this.booSound = this.game.add.audio('boo');
   },
   
  //find objects in a Tiled layer that containt a property called "type" equal to a certain value
@@ -99,9 +110,10 @@ SideScroller.Game.prototype = {
         this.player.isDucked = false;
       }
 
-      //restart the game if reaching the edge
+      // we made it to the end, so win
       if(this.player.x >= this.game.world.width) {
-        this.game.state.start('Game');
+        //this.game.state.start('Finish',true,false,this.coinCount);
+        window.location = '/finish.html?count=' + this.coinCount;
       }
     }
 
@@ -110,7 +122,7 @@ SideScroller.Game.prototype = {
     //if hits on the right side, die
     if(player.body.blocked.right) {
 
-      console.log(player.body.blocked);
+      //console.log(player.body.blocked);
 
       //set to dead (this doesn't affect rendering)
       this.player.alive = false;
@@ -131,48 +143,8 @@ SideScroller.Game.prototype = {
 
     //remove sprite
     collectable.destroy();
-  },
-  initGameController: function() {
-
-    if(!GameController.hasInitiated) {
-      var that = this;
-      
-      GameController.init({
-          left: {
-              type: 'none',
-          },
-          right: {
-              type: 'buttons',
-              buttons: [
-                false,
-                {
-                  label: 'J', 
-                  touchStart: function() {
-                    if(!that.player.alive) {
-                      return;
-                    }
-                    that.playerJump();
-                  }
-                },
-                false,
-                {
-                  label: 'D',
-                  touchStart: function() {
-                    if(!that.player.alive) {
-                      return;
-                    }
-                    that.pressingDown = true; that.playerDuck();
-                  },
-                  touchEnd: function(){
-                    that.pressingDown = false;
-                  }
-                }
-              ]
-          },
-      });
-      GameController.hasInitiated = true;
-    }
-
+    
+    this.coinCount++;
   },
   //create coins
   createCoins: function() {
@@ -184,6 +156,7 @@ SideScroller.Game.prototype = {
     }, this);
   },
   gameOver: function() {
+    this.booSound.play();
     this.game.state.start('Game');
   },
   playerJump: function() {
@@ -201,7 +174,7 @@ SideScroller.Game.prototype = {
   },
   render: function()
     {
-        this.game.debug.text(this.game.time.fps || '--', 20, 70, "#00ff00", "40px Courier");   
-        this.game.debug.bodyInfo(this.player, 0, 80);   
+        //this.game.debug.text(this.game.time.fps || '--', 20, 70, "#00ff00", "40px Courier");   
+        //this.game.debug.bodyInfo(this.player, 0, 80);   
     }
 };

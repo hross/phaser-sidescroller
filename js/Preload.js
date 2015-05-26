@@ -19,9 +19,13 @@ SideScroller.Preload.prototype = {
     this.load.image('playerDuck', 'assets/images/player_duck.png');
     this.load.image('playerDead', 'assets/images/player_dead.png');
     this.load.image('goldCoin', 'assets/images/goldCoin.png');
-    this.load.audio('coin', ['assets/audio/coin.ogg', 'assets/audio/coin.mp3']);
+    this.load.image('startButton', 'assets/images/startButton.png');
+    this.load.audio('coin', ['assets/audio/coin.mp3', 'assets/audio/coin.wav']);
+    this.load.audio('boo', ['assets/audio/boo.mp3']);
+    this.load.audio('gameMusic', ['assets/audio/game.mp3']);
+    this.load.audio('titleMusic', ['assets/audio/title.mp3']);
   },
   create: function() {
-    this.state.start('Game');
+    this.state.start('Title');
   }
 };
